@@ -1,0 +1,26 @@
+.collection-page {
+    min-height: calc(100vh - 70px);
+    padding: 20px 0 60px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.empty-icon {
+    font-size: 6rem;
+    margin-bottom: 24px;
+    opacity: 0.5;
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: #e5e5e5;
+}
+
+.empty-state p {
+    font-size: 1.2rem;
+    color: #b0b0b0;
+}
