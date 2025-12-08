@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  favorites Favorite[]
+  wishlist  Wishlist[]
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  title       String
+  price       Float
+  description String?
+  category    String
+  image       String
+  rating      Float?
+
+  favorites Favorite[]
+  wishlist  Wishlist[]
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  productId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId Int
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
