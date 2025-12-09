@@ -30,6 +30,9 @@ const Navbar = () => {
                             <Link to="/wishlist" className="navbar-link">
                                 <span className="icon">⭐</span> Wishlist
                             </Link>
+                            <Link to="/cart" className="navbar-link">
+                                <span className="icon">🛒</span> Cart
+                            </Link>
                             <Link to="/profile" className="navbar-link">
                                 <span className="icon">👤</span> Profile
                             </Link>

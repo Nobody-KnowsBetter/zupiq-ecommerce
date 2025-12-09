@@ -40,7 +40,14 @@ const Favorites = () => {
                         {favorites.map((fav) => (
                             <ProductCard
                                 key={fav.id}
-                                product={fav.product}
+                                product={{
+                                    id: fav.productId,
+                                    title: fav.productTitle,
+                                    price: fav.productPrice,
+                                    image: fav.productImage,
+                                    category: fav.productCategory,
+                                    rating: { rate: 0, count: 0 } // Default rating as we don't store it
+                                }}
                                 onFavoriteChange={fetchFavorites}
                             />
                         ))}

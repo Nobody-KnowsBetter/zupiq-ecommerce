@@ -10,20 +10,49 @@ const Products = () => {
     const [category, setCategory] = useState('');
     const [sort, setSort] = useState('');
     const [page, setPage] = useState(1);
-    const [pagination, setPagination] = useState({});
+    const itemsPerPage = 12;
 
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const params = { page, limit: 12 };
-                if (search) params.search = search;
-                if (category) params.category = category;
-                if (sort) params.sort = sort;
+                let url = 'https://fakestoreapi.com/products';
+                if (category) {
+                    url = `https://fakestoreapi.com/products/category/${category}`;
+                }
 
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/products`, { params });
-                setProducts(response.data.products);
-                setPagination(response.data.pagination);
+                // FakeStore API supports sort=desc or sort=asc
+                const params = {};
+                if (sort) {
+                    // map our sort values to fakestore values
+                    if (sort === 'price-asc' || sort === 'asc') params.sort = 'asc';
+                    if (sort === 'price-desc' || sort === 'desc') params.sort = 'desc';
+                }
+
+                const response = await axios.get(url, { params });
+                let data = response.data;
+
+                // Client-side search since FakeStore doesn't support search query
+                if (search) {
+                    data = data.filter(product =>
+                        product.title.toLowerCase().includes(search.toLowerCase())
+                    );
+                }
+
+                // Client-side sorting for price if needed (FakeStore sort might be by ID)
+                // But let's trust the API sort for now or implement client side if needed.
+                // Actually FakeStore sort param sorts by ID, not price usually.
+                // Let's implement client side sort for better UX.
+                if (sort === 'price-asc') {
+                    data.sort((a, b) => a.price - b.price);
+                } else if (sort === 'price-desc') {
+                    data.sort((a, b) => b.price - a.price);
+                } else if (sort === 'rating') {
+                    data.sort((a, b) => b.rating.rate - a.rating.rate);
+                }
+
+                setProducts(data);
+                setPage(1); // Reset to page 1 on filter change
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
@@ -32,12 +61,17 @@ const Products = () => {
         };
 
         fetchProducts();
-    }, [search, category, sort, page]);
+    }, [search, category, sort]);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setPage(1);
     };
+
+    // Pagination logic
+    const indexOfLastItem = page * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
 
     return (
         <div className="products-page">
@@ -59,18 +93,19 @@ const Products = () => {
                     <div className="filters">
                         <select
                             value={category}
-                            onChange={(e) => { setCategory(e.target.value); setPage(1); }}
+                            onChange={(e) => { setCategory(e.target.value); }}
                             className="filter-select"
                         >
                             <option value="">All Categories</option>
                             <option value="men's clothing">Men's Clothing</option>
                             <option value="women's clothing">Women's Clothing</option>
                             <option value="jewelery">Jewelry</option>
+                            <option value="electronics">Electronics</option>
                         </select>
 
                         <select
                             value={sort}
-                            onChange={(e) => { setSort(e.target.value); setPage(1); }}
+                            onChange={(e) => { setSort(e.target.value); }}
                             className="filter-select"
                         >
                             <option value="">Sort By</option>
@@ -88,12 +123,12 @@ const Products = () => {
                 ) : (
                     <>
                         <div className="products-grid">
-                            {products.map((product) => (
+                            {currentProducts.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
 
-                        {pagination.pages > 1 && (
+                        {totalPages > 1 && (
                             <div className="pagination">
                                 <button
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -103,11 +138,11 @@ const Products = () => {
                                     Previous
                                 </button>
                                 <span className="page-info">
-                                    Page {page} of {pagination.pages}
+                                    Page {page} of {totalPages}
                                 </span>
                                 <button
-                                    onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-                                    disabled={page === pagination.pages}
+                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={page === totalPages}
                                     className="btn btn-secondary"
                                 >
                                     Next

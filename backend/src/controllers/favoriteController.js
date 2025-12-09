@@ -2,14 +2,17 @@ const prisma = require('../prismaClient');
 
 exports.addFavorite = async (req, res) => {
     try {
-        const { productId } = req.body;
+        const { productId, productTitle, productPrice, productImage, productCategory } = req.body;
 
         const favorite = await prisma.favorite.create({
             data: {
                 userId: req.userId,
-                productId: parseInt(productId)
-            },
-            include: { product: true }
+                productId: parseInt(productId),
+                productTitle,
+                productPrice: parseFloat(productPrice),
+                productImage,
+                productCategory
+            }
         });
 
         res.status(201).json(favorite);
@@ -39,8 +42,7 @@ exports.removeFavorite = async (req, res) => {
 exports.getFavorites = async (req, res) => {
     try {
         const favorites = await prisma.favorite.findMany({
-            where: { userId: req.userId },
-            include: { product: true }
+            where: { userId: req.userId }
         });
 
         res.json(favorites);

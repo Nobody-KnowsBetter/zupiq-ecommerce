@@ -2,14 +2,17 @@ const prisma = require('../prismaClient');
 
 exports.addToWishlist = async (req, res) => {
     try {
-        const { productId } = req.body;
+        const { productId, productTitle, productPrice, productImage, productCategory } = req.body;
 
         const wishlistItem = await prisma.wishlist.create({
             data: {
                 userId: req.userId,
-                productId: parseInt(productId)
-            },
-            include: { product: true }
+                productId: parseInt(productId),
+                productTitle,
+                productPrice: parseFloat(productPrice),
+                productImage,
+                productCategory
+            }
         });
 
         res.status(201).json(wishlistItem);
@@ -39,8 +42,7 @@ exports.removeFromWishlist = async (req, res) => {
 exports.getWishlist = async (req, res) => {
     try {
         const wishlist = await prisma.wishlist.findMany({
-            where: { userId: req.userId },
-            include: { product: true }
+            where: { userId: req.userId }
         });
 
         res.json(wishlist);

@@ -9,6 +9,7 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Favorites from './pages/Favorites';
 import Wishlist from './pages/Wishlist';
+import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
@@ -27,6 +28,7 @@ function App() {
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/favorites" element={<PrivateRoute><Favorites /></PrivateRoute>} />
             <Route path="/wishlist" element={<PrivateRoute><Wishlist /></PrivateRoute>} />
+            <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           </Routes>
         </div>

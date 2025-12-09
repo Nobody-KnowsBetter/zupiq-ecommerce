@@ -22,7 +22,11 @@ const ProductCard = ({ product, onFavoriteChange, onWishlistChange }) => {
                 setIsFavorite(false);
             } else {
                 await axios.post(`${process.env.REACT_APP_API_URL}/favorites`, {
-                    productId: product.id
+                    productId: product.id,
+                    productTitle: product.title,
+                    productPrice: product.price,
+                    productImage: product.image,
+                    productCategory: product.category
                 });
                 setIsFavorite(true);
             }
@@ -45,13 +49,39 @@ const ProductCard = ({ product, onFavoriteChange, onWishlistChange }) => {
                 setIsInWishlist(false);
             } else {
                 await axios.post(`${process.env.REACT_APP_API_URL}/wishlist`, {
-                    productId: product.id
+                    productId: product.id,
+                    productTitle: product.title,
+                    productPrice: product.price,
+                    productImage: product.image,
+                    productCategory: product.category
                 });
                 setIsInWishlist(true);
             }
             if (onWishlistChange) onWishlistChange();
         } catch (error) {
             console.error('Wishlist error:', error);
+        }
+    };
+
+    const handleAddToCart = async (e) => {
+        e.preventDefault();
+        if (!user) {
+            alert('Please login to add to cart');
+            return;
+        }
+
+        try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/cart`, {
+                productId: product.id,
+                productTitle: product.title,
+                productPrice: product.price,
+                productImage: product.image,
+                productCategory: product.category,
+                quantity: 1
+            });
+            alert('Added to cart!');
+        } catch (error) {
+            console.error('Cart error:', error);
         }
     };
 
@@ -66,6 +96,9 @@ const ProductCard = ({ product, onFavoriteChange, onWishlistChange }) => {
                     <button onClick={handleWishlist} className={`action-btn ${isInWishlist ? 'active' : ''}`}>
                         ⭐
                     </button>
+                    <button onClick={handleAddToCart} className="action-btn">
+                        🛒
+                    </button>
                 </div>
             </div>
             <div className="product-info">
@@ -73,7 +106,7 @@ const ProductCard = ({ product, onFavoriteChange, onWishlistChange }) => {
                 <div className="product-footer">
                     <span className="product-price">${product.price.toFixed(2)}</span>
                     {product.rating && (
-                        <span className="product-rating">⭐ {product.rating.toFixed(1)}</span>
+                        <span className="product-rating">⭐ {product.rating.rate.toFixed(1)}</span>
                     )}
                 </div>
             </div>

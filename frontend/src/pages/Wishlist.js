@@ -40,7 +40,14 @@ const Wishlist = () => {
                         {wishlist.map((item) => (
                             <ProductCard
                                 key={item.id}
-                                product={item.product}
+                                product={{
+                                    id: item.productId,
+                                    title: item.productTitle,
+                                    price: item.productPrice,
+                                    image: item.productImage,
+                                    category: item.productCategory,
+                                    rating: { rate: 0, count: 0 } // Default rating
+                                }}
                                 onWishlistChange={fetchWishlist}
                             />
                         ))}

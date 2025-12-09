@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const favoriteRoutes = require('./routes/favorites');
 const wishlistRoutes = require('./routes/wishlist');
+const cartRoutes = require('./routes/cartRoutes');
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/cart', cartRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Zupiq API is running' });

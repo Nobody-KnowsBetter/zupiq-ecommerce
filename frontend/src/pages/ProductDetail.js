@@ -15,7 +15,7 @@ const ProductDetail = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/products/${id}`);
+                const response = await axios.get(`https://fakestoreapi.com/products/${id}`);
                 setProduct(response.data);
             } catch (error) {
                 console.error('Error fetching product:', error);
@@ -38,7 +38,13 @@ const ProductDetail = () => {
                 await axios.delete(`${process.env.REACT_APP_API_URL}/favorites/${id}`);
                 setIsFavorite(false);
             } else {
-                await axios.post(`${process.env.REACT_APP_API_URL}/favorites`, { productId: parseInt(id) });
+                await axios.post(`${process.env.REACT_APP_API_URL}/favorites`, {
+                    productId: parseInt(id),
+                    productTitle: product.title,
+                    productPrice: product.price,
+                    productImage: product.image,
+                    productCategory: product.category
+                });
                 setIsFavorite(true);
             }
         } catch (error) {
@@ -57,11 +63,38 @@ const ProductDetail = () => {
                 await axios.delete(`${process.env.REACT_APP_API_URL}/wishlist/${id}`);
                 setIsInWishlist(false);
             } else {
-                await axios.post(`${process.env.REACT_APP_API_URL}/wishlist`, { productId: parseInt(id) });
+                await axios.post(`${process.env.REACT_APP_API_URL}/wishlist`, {
+                    productId: parseInt(id),
+                    productTitle: product.title,
+                    productPrice: product.price,
+                    productImage: product.image,
+                    productCategory: product.category
+                });
                 setIsInWishlist(true);
             }
         } catch (error) {
             console.error('Wishlist error:', error);
+        }
+    };
+
+    const handleAddToCart = async () => {
+        if (!user) {
+            alert('Please login to add to cart');
+            return;
+        }
+
+        try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/cart`, {
+                productId: parseInt(id),
+                productTitle: product.title,
+                productPrice: product.price,
+                productImage: product.image,
+                productCategory: product.category,
+                quantity: 1
+            });
+            alert('Added to cart!');
+        } catch (error) {
+            console.error('Cart error:', error);
         }
     };
 
@@ -83,7 +116,7 @@ const ProductDetail = () => {
                         <div className="price-rating">
                             <span className="detail-price">${product.price.toFixed(2)}</span>
                             {product.rating && (
-                                <span className="detail-rating">⭐ {product.rating.toFixed(1)}</span>
+                                <span className="detail-rating">⭐ {product.rating.rate.toFixed(1)}</span>
                             )}
                         </div>
 
@@ -95,6 +128,9 @@ const ProductDetail = () => {
                             </button>
                             <button onClick={handleWishlist} className={`btn ${isInWishlist ? 'btn-primary' : 'btn-secondary'}`}>
                                 ⭐ {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                            </button>
+                            <button onClick={handleAddToCart} className="btn btn-primary">
+                                🛒 Add to Cart
                             </button>
                         </div>
                     </div>

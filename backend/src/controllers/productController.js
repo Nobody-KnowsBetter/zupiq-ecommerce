@@ -1,39 +1,44 @@
 const prisma = require('../prismaClient');
 
+// Helper function to fetch and seed products
+const seedProducts = async () => {
+    const response = await fetch('https://fakestoreapi.com/products');
+    const products = await response.json();
+
+    const clothingProducts = products.filter(p =>
+        p.category.includes("clothing") || p.category.includes("jewelery")
+    );
+
+    for (const product of clothingProducts) {
+        await prisma.product.upsert({
+            where: { id: product.id },
+            update: {
+                title: product.title,
+                price: product.price,
+                description: product.description,
+                category: product.category,
+                image: product.image,
+                rating: product.rating?.rate || 0
+            },
+            create: {
+                id: product.id,
+                title: product.title,
+                price: product.price,
+                description: product.description,
+                category: product.category,
+                image: product.image,
+                rating: product.rating?.rate || 0
+            }
+        });
+    }
+    return clothingProducts.length;
+};
+
 // Sync products from FakeStore API
 exports.syncProducts = async (req, res) => {
     try {
-        const response = await fetch('https://fakestoreapi.com/products');
-        const products = await response.json();
-
-        const clothingProducts = products.filter(p =>
-            p.category.includes("clothing") || p.category.includes("jewelery")
-        );
-
-        for (const product of clothingProducts) {
-            await prisma.product.upsert({
-                where: { id: product.id },
-                update: {
-                    title: product.title,
-                    price: product.price,
-                    description: product.description,
-                    category: product.category,
-                    image: product.image,
-                    rating: product.rating?.rate || 0
-                },
-                create: {
-                    id: product.id,
-                    title: product.title,
-                    price: product.price,
-                    description: product.description,
-                    category: product.category,
-                    image: product.image,
-                    rating: product.rating?.rate || 0
-                }
-            });
-        }
-
-        res.json({ message: 'Products synced successfully', count: clothingProducts.length });
+        const count = await seedProducts();
+        res.json({ message: 'Products synced successfully', count });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -41,6 +46,13 @@ exports.syncProducts = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try {
+        // Auto-seed if database is empty
+        const count = await prisma.product.count();
+        if (count === 0) {
+            console.log('Database empty, seeding products...');
+            await seedProducts();
+        }
+
         const { search, category, sort, page = 1, limit = 12 } = req.query;
 
         const where = {};
