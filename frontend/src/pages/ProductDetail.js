@@ -13,19 +13,32 @@ const ProductDetail = () => {
     const [isInWishlist, setIsInWishlist] = useState(false);
 
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchProductAndStatus = async () => {
             try {
-                const response = await axios.get(`https://fakestoreapi.com/products/${id}`);
-                setProduct(response.data);
+                const productRes = await axios.get(`https://fakestoreapi.com/products/${id}`);
+                setProduct(productRes.data);
+
+                if (user) {
+                    const [favRes, wishRes] = await Promise.all([
+                        axios.get(`${process.env.REACT_APP_API_URL}/favorites`),
+                        axios.get(`${process.env.REACT_APP_API_URL}/wishlist`)
+                    ]);
+
+                    const isFav = favRes.data.some(item => item.productId === parseInt(id));
+                    const isWish = wishRes.data.some(item => item.productId === parseInt(id));
+
+                    setIsFavorite(isFav);
+                    setIsInWishlist(isWish);
+                }
             } catch (error) {
-                console.error('Error fetching product:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchProduct();
-    }, [id]);
+        fetchProductAndStatus();
+    }, [id, user]);
 
     const handleFavorite = async () => {
         if (!user) {

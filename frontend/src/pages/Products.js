@@ -10,49 +10,27 @@ const Products = () => {
     const [category, setCategory] = useState('');
     const [sort, setSort] = useState('');
     const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 12;
 
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                let url = 'https://fakestoreapi.com/products';
-                if (category) {
-                    url = `https://fakestoreapi.com/products/category/${category}`;
-                }
+                const params = {
+                    page,
+                    limit: itemsPerPage
+                };
 
-                // FakeStore API supports sort=desc or sort=asc
-                const params = {};
-                if (sort) {
-                    // map our sort values to fakestore values
-                    if (sort === 'price-asc' || sort === 'asc') params.sort = 'asc';
-                    if (sort === 'price-desc' || sort === 'desc') params.sort = 'desc';
-                }
+                if (search) params.search = search;
+                if (category) params.category = category;
+                if (sort) params.sort = sort;
 
-                const response = await axios.get(url, { params });
-                let data = response.data;
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/products`, { params });
 
-                // Client-side search since FakeStore doesn't support search query
-                if (search) {
-                    data = data.filter(product =>
-                        product.title.toLowerCase().includes(search.toLowerCase())
-                    );
-                }
-
-                // Client-side sorting for price if needed (FakeStore sort might be by ID)
-                // But let's trust the API sort for now or implement client side if needed.
-                // Actually FakeStore sort param sorts by ID, not price usually.
-                // Let's implement client side sort for better UX.
-                if (sort === 'price-asc') {
-                    data.sort((a, b) => a.price - b.price);
-                } else if (sort === 'price-desc') {
-                    data.sort((a, b) => b.price - a.price);
-                } else if (sort === 'rating') {
-                    data.sort((a, b) => b.rating.rate - a.rating.rate);
-                }
-
-                setProducts(data);
-                setPage(1); // Reset to page 1 on filter change
+                // Backend returns { products, pagination }
+                setProducts(response.data.products);
+                setTotalPages(response.data.pagination.pages);
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
@@ -60,18 +38,19 @@ const Products = () => {
             }
         };
 
-        fetchProducts();
-    }, [search, category, sort]);
+        const timer = setTimeout(() => {
+            fetchProducts();
+        }, 300); // Debounce search
+
+        return () => clearTimeout(timer);
+    }, [search, category, sort, page]);
 
     const handleSearch = (e) => {
         e.preventDefault();
     };
 
-    // Pagination logic
-    const indexOfLastItem = page * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(products.length / itemsPerPage);
+    // Pagination logic - Server side handled
+    const currentProducts = products; // Already sliced by server
 
     return (
         <div className="products-page">

@@ -24,8 +24,8 @@ Zupiq is a premium E-commerce platform for clothing and jewelry, designed with a
 - **Wishlist/Favorite**: Relational tables linking Users and Products.
 
 ### Hosting
-- **Frontend**: [Insert Vercel URL Here]
-- **Backend**: [Insert Render URL Here]
+- **Frontend**: [Link to Vercel Deployment](https://zupiq-ecommerce.vercel.app)
+- **Backend**: [Link to Render Deployment](https://zupiq-backend.onrender.com)
 - **Database**: Neon PostgreSQL.
 
 ## Setup Instructions

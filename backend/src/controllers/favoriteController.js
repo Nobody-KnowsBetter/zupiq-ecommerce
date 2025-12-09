@@ -20,21 +20,26 @@ exports.addFavorite = async (req, res) => {
         if (error.code === 'P2002') {
             return res.status(400).json({ error: 'Already in favorites' });
         }
+        console.error('Add to favorites error:', error);
         res.status(500).json({ error: error.message });
     }
 };
 
 exports.removeFavorite = async (req, res) => {
     try {
-        await prisma.favorite.deleteMany({
+        console.log('Removing favorite:', req.userId, req.params.productId);
+        console.log('Attempting to remove wishlist item:', req.userId, req.params.productId);
+        const result = await prisma.favorite.deleteMany({
             where: {
                 userId: req.userId,
                 productId: parseInt(req.params.productId)
             }
         });
+        console.log('Remove wishlist result:', result);
 
-        res.json({ message: 'Removed from favorites' });
+        res.json({ message: 'Removed from wishlist' });
     } catch (error) {
+        console.error('Remove wishlist error:', error);
         res.status(500).json({ error: error.message });
     }
 };

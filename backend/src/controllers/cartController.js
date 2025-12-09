@@ -37,6 +37,10 @@ exports.addToCart = async (req, res) => {
 
         res.status(201).json(cartItem);
     } catch (error) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: 'Already in favorites' });
+        }
+        console.error('Add to favorites error:', error);
         res.status(500).json({ error: error.message });
     }
 };

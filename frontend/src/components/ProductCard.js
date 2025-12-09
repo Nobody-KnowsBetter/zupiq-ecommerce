@@ -104,9 +104,9 @@ const ProductCard = ({ product, onFavoriteChange, onWishlistChange }) => {
             <div className="product-info">
                 <h3 className="product-title">{product.title}</h3>
                 <div className="product-footer">
-                    <span className="product-price">${product.price.toFixed(2)}</span>
+                    <span className="product-price">${product.price?.toFixed(2) || '0.00'}</span>
                     {product.rating && (
-                        <span className="product-rating">⭐ {product.rating.rate.toFixed(1)}</span>
+                        <span className="product-rating">⭐ {product.rating.rate?.toFixed(1) || '0.0'}</span>
                     )}
                 </div>
             </div>
